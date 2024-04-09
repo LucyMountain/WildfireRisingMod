@@ -1,0 +1,41 @@
+{
+	"schemaVersion": 1,
+	"id": "beyond_reach",
+	"version": "${version}",
+	"name": "Beyond Reach Mod",
+	"description": "hell :D",
+	"authors": [
+		"Nightshade!",
+		"ShadowFlame!"
+	],
+	"contact": {
+		"homepage": "",
+		"sources": ""
+	},
+	"license": "MIT",
+	"icon": "assets/beyond_reach/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"net.shade.beyond_reach.BeyondReachMod"
+		],
+		"client": [
+			"net.shade.beyond_reach.BeyondReachModClient"
+		],
+		"fabric-datagen": [
+			"net.shade.beyond_reach.BeyondReachModDataGenerator"
+		]
+	},
+	"mixins": [
+		"beyond_reach.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.14.21",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
