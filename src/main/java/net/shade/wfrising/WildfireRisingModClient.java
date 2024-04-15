@@ -1,8 +1,8 @@
-package net.shade.beyond_reach;
+package net.shade.wfrising;
 
 import net.fabricmc.api.ClientModInitializer;
 
-public class BeyondReachModClient implements ClientModInitializer {
+public class WildfireRisingModClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
 

@@ -1,9 +1,9 @@
 {
 	"schemaVersion": 1,
-	"id": "beyond_reach",
+	"id": "wfrising",
 	"version": "${version}",
-	"name": "Beyond Reach Mod",
-	"description": "hell :D",
+	"name": "Wildfire Rising",
+	"description": "Custom Weapons for the Wildfire",
 	"authors": [
 		"Nightshade!",
 		"ShadowFlame!"
@@ -13,21 +13,21 @@
 		"sources": ""
 	},
 	"license": "MIT",
-	"icon": "assets/beyond_reach/icon.png",
+	"icon": "assets/wfrising/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"net.shade.beyond_reach.BeyondReachMod"
+			"net.shade.wfrising.WildfireRisingMod"
 		],
 		"client": [
-			"net.shade.beyond_reach.BeyondReachModClient"
+			"net.shade.wfrising.WildfireRisingModClient"
 		],
 		"fabric-datagen": [
-			"net.shade.beyond_reach.BeyondReachModDataGenerator"
+			"net.shade.wfrising.WildfireRisingModDataGenerator"
 		]
 	},
 	"mixins": [
-		"beyond_reach.mixins.json"
+		"wfrising.mixins.json"
 	],
 	"depends": {
 		"fabricloader": ">=0.14.21",

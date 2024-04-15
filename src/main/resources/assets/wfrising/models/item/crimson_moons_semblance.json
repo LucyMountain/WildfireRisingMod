@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "wfrising:item/crimson_moons_semblance"
+  }
+}
