@@ -14,11 +14,11 @@ public class BloodDebtEffect extends StatusEffect {
 
     @Override
     public void applyUpdateEffect(LivingEntity livingEntity, int amplifier) {
-        livingEntity.damage(livingEntity.getDamageSources().magic(), (float)(6));
+        livingEntity.damage(livingEntity.getDamageSources().magic(), (float)(4));
     }
 
     @Override
     public boolean canApplyUpdateEffect(int duration, int amplifier) {
-        return duration % 25 == 0;
+        return duration % 40 == 0;
     }
 }

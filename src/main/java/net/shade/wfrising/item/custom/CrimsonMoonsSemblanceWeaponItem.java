@@ -12,14 +12,25 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.StackReference;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemUsage;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.screen.slot.Slot;
+import net.minecraft.util.ClickType;
+import net.minecraft.util.Hand;
+import net.minecraft.util.TypedActionResult;
+import net.minecraft.util.UseAction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.shade.wfrising.effects.ModEffects;
 
 public class CrimsonMoonsSemblanceWeaponItem extends Item {
     private final float attackDamage;
+    private int weaponForm = 0;
+    private int maxUseTicks = 100;
     private final Multimap<EntityAttribute, EntityAttributeModifier> attributeModifiers;
 
     public CrimsonMoonsSemblanceWeaponItem(Settings settings) {
@@ -29,10 +40,6 @@ public class CrimsonMoonsSemblanceWeaponItem extends Item {
         builder.put(EntityAttributes.GENERIC_ATTACK_DAMAGE, new EntityAttributeModifier(ATTACK_DAMAGE_MODIFIER_ID, "Weapon modifier", (double)this.attackDamage, EntityAttributeModifier.Operation.ADDITION));
         builder.put(EntityAttributes.GENERIC_ATTACK_SPEED, new EntityAttributeModifier(ATTACK_SPEED_MODIFIER_ID, "Weapon modifier", (double)-2.4, EntityAttributeModifier.Operation.ADDITION));
         this.attributeModifiers = builder.build();
-    }
-
-    public float getAttackDamage() {
-        return this.attackDamage;
     }
 
     public boolean canMine(BlockState state, World world, BlockPos pos, PlayerEntity miner) {
@@ -51,7 +58,8 @@ public class CrimsonMoonsSemblanceWeaponItem extends Item {
         stack.damage(1, attacker, (e) -> {
             e.sendEquipmentBreakStatus(EquipmentSlot.MAINHAND);
         });
-        target.addStatusEffect(new StatusEffectInstance(StatusEffects.DARKNESS, 100, 2));
+
+        target.addStatusEffect(new StatusEffectInstance(ModEffects.BLOOD_DEBT, 100, 2));
         return true;
     }
 
@@ -63,6 +71,27 @@ public class CrimsonMoonsSemblanceWeaponItem extends Item {
         }
 
         return true;
+    }
+    public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+        return ItemUsage.consumeHeldItem(world, user, hand);
+    }
+    public int getMaxUseTime(ItemStack stack) {
+        return maxUseTicks;
+    }
+    public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
+        int ticks = maxUseTicks - remainingUseTicks;
+        int currentForm = stack.getOrCreateNbt().getInt("Form");
+        if (ticks > 10){
+            if (currentForm == 1) {
+                user.addStatusEffect(new StatusEffectInstance(StatusEffects.DARKNESS, 100, 2));
+            }
+        }else{
+            if (currentForm == 1){
+                stack.getOrCreateNbt().putInt("Form", 0);
+            }else{
+                stack.getOrCreateNbt().putInt("Form", 1);
+            }
+        }
     }
 
     public boolean isSuitableFor(BlockState state) {

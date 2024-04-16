@@ -1,6 +1,8 @@
 package net.shade.wfrising.effects;
 
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.minecraft.entity.attribute.EntityAttributeModifier;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
 import net.minecraft.item.ItemGroups;
@@ -21,7 +23,7 @@ public class ModEffects {
             new EtherealGlareEffect(StatusEffectCategory.HARMFUL, 16755200));
 
     public static final StatusEffect BLOOD_DEBT = registerEffect("blood_debt",
-            new BloodDebtEffect(StatusEffectCategory.HARMFUL, 11141120));
+            new BloodDebtEffect(StatusEffectCategory.HARMFUL, 11141120).addAttributeModifier(EntityAttributes.GENERIC_ATTACK_SPEED, "FA233E1C-4180-4865-B01B-BCCE9785ACA3", -0.1, EntityAttributeModifier.Operation.MULTIPLY_TOTAL));
 
     private static StatusEffect registerEffect(String name, StatusEffect statusEffect) {
         return Registry.register(Registries.STATUS_EFFECT, new Identifier(WildfireRisingMod.MOD_ID, name), statusEffect);
