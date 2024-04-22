@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttribute;
@@ -19,12 +20,15 @@ import net.minecraft.item.ItemUsage;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ClickType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.UseAction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.shade.wfrising.WildfireRisingMod;
 import net.shade.wfrising.effects.ModEffects;
 
 public class CrimsonMoonsSemblanceWeaponItem extends Item {
@@ -72,12 +76,15 @@ public class CrimsonMoonsSemblanceWeaponItem extends Item {
 
         return true;
     }
+
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         return ItemUsage.consumeHeldItem(world, user, hand);
     }
+
     public int getMaxUseTime(ItemStack stack) {
         return maxUseTicks;
     }
+
     public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
         int ticks = maxUseTicks - remainingUseTicks;
         int currentForm = stack.getOrCreateNbt().getInt("Form");
@@ -87,10 +94,33 @@ public class CrimsonMoonsSemblanceWeaponItem extends Item {
             }
         }else{
             if (currentForm == 1){
+                int totalTime = (int) world.getTime() - stack.getOrCreateNbt().getInt("ScytheFormStart");
+                int cooldown = 160;
+                if (totalTime < 640){
+                    cooldown = cooldown + totalTime;
+                }else{
+                    cooldown = cooldown + 640;
+                }
+                stack.getOrCreateNbt().putInt("CooldownStart", (int) world.getTime());
+                stack.getOrCreateNbt().putInt("Cooldown", cooldown);
                 stack.getOrCreateNbt().putInt("Form", 0);
             }else{
-                stack.getOrCreateNbt().putInt("Form", 1);
+                int cooldownLeft = stack.getOrCreateNbt().getInt("Cooldown") - (int) world.getTime() + stack.getOrCreateNbt().getInt("CooldownStart");
+                if (cooldownLeft > 800 ||  cooldownLeft < 1) {
+                    stack.getOrCreateNbt().putInt("Form", 1);
+                    WildfireRisingMod.LOGGER.info(String.valueOf(stack.getOrCreateNbt().getInt("Form")));
+                    stack.getOrCreateNbt().putInt("ScytheFormStart", (int) world.getTime());
+                }else{
+                    WildfireRisingMod.LOGGER.info("Nope :(");
+                }
             }
+        }
+    }
+
+    public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
+        int totalTime = (int) world.getTime() - stack.getOrCreateNbt().getInt("ScytheFormStart");
+        if (totalTime >= 640) {
+            this.onStoppedUsing(stack, world, (LivingEntity) entity, 1);
         }
     }
 
