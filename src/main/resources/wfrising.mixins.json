@@ -1,8 +1,11 @@
 {
 	"required": true,
-	"package": "net.shade.beyond_reach.mixin",
+	"package": "net.shade.wfrising.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
+		"BondOfLifeMixin",
+		"HealthBarMixin",
+		"BloodDebtRendererMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

@@ -5,5 +5,7 @@
 
   "itemgroup.wildfire_rising": "Wildfire Rising",
 
-  "effect.ethereal_glare": "Ethereal Glare"
+  "effect.wfrising.ethereal_glare": "Ethereal Glare",
+  "effect.wfrising.blood_debt": "Blood Debt",
+  "effect.wfrising.bond_of_life": "Bond of Life"
 }

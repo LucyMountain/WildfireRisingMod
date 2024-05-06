@@ -10,6 +10,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
@@ -20,6 +21,7 @@ import net.minecraft.item.ItemUsage;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ClickType;
@@ -30,16 +32,16 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.shade.wfrising.WildfireRisingMod;
 import net.shade.wfrising.effects.ModEffects;
+import net.shade.wfrising.event.PlayerTickHandler;
 
 public class CrimsonMoonsSemblanceWeaponItem extends Item {
-    private final float attackDamage;
+    private final float attackDamage = 7;
     private int weaponForm = 0;
     private int maxUseTicks = 100;
     private final Multimap<EntityAttribute, EntityAttributeModifier> attributeModifiers;
 
     public CrimsonMoonsSemblanceWeaponItem(Settings settings) {
         super(settings);
-        this.attackDamage = 7;
         ImmutableMultimap.Builder<EntityAttribute, EntityAttributeModifier> builder = ImmutableMultimap.builder();
         builder.put(EntityAttributes.GENERIC_ATTACK_DAMAGE, new EntityAttributeModifier(ATTACK_DAMAGE_MODIFIER_ID, "Weapon modifier", (double)this.attackDamage, EntityAttributeModifier.Operation.ADDITION));
         builder.put(EntityAttributes.GENERIC_ATTACK_SPEED, new EntityAttributeModifier(ATTACK_SPEED_MODIFIER_ID, "Weapon modifier", (double)-2.4, EntityAttributeModifier.Operation.ADDITION));
@@ -62,8 +64,21 @@ public class CrimsonMoonsSemblanceWeaponItem extends Item {
         stack.damage(1, attacker, (e) -> {
             e.sendEquipmentBreakStatus(EquipmentSlot.MAINHAND);
         });
-
-        target.addStatusEffect(new StatusEffectInstance(ModEffects.BLOOD_DEBT, 100, 2));
+        if (target.hasStatusEffect(ModEffects.BLOOD_DEBT) && stack.getOrCreateNbt().getInt("Form") == 1){
+            target.damage(target.getDamageSources().magic(), 0.7F);
+        }
+        target.addStatusEffect(new StatusEffectInstance(ModEffects.BLOOD_DEBT, 600, 0));
+        if (stack.getOrCreateNbt().getInt("Form") == 1){
+            if (attacker.hasStatusEffect(ModEffects.BOND_OF_LIFE)) {
+                int bond_amplifier = attacker.getActiveStatusEffects().get(ModEffects.BOND_OF_LIFE).getAmplifier();
+                if (bond_amplifier < 19) {
+                    attacker.removeStatusEffect(ModEffects.BOND_OF_LIFE);
+                    attacker.addStatusEffect(new StatusEffectInstance(ModEffects.BOND_OF_LIFE, -1, bond_amplifier + 1));
+                }
+            }else{
+                attacker.addStatusEffect(new StatusEffectInstance(ModEffects.BOND_OF_LIFE, -1, 0));
+            }
+        }
         return true;
     }
 
@@ -90,7 +105,17 @@ public class CrimsonMoonsSemblanceWeaponItem extends Item {
         int currentForm = stack.getOrCreateNbt().getInt("Form");
         if (ticks > 10){
             if (currentForm == 1) {
-                user.addStatusEffect(new StatusEffectInstance(StatusEffects.DARKNESS, 100, 2));
+                if (user.hasStatusEffect(ModEffects.BOND_OF_LIFE)) {
+                    int bond_strength = user.getActiveStatusEffects().get(ModEffects.BOND_OF_LIFE).getAmplifier() + 1;
+                    user.removeStatusEffect(ModEffects.BOND_OF_LIFE);
+                    user.heal(bond_strength);
+                    for (PlayerEntity player : world.getPlayers()) {
+                        if (player.hasStatusEffect(ModEffects.BLOOD_DEBT)) {
+                            player.removeStatusEffect(ModEffects.BLOOD_DEBT);
+                            player.damage(player.getDamageSources().magic(), (float) (0.75 * bond_strength));
+                        }
+                    }
+                }
             }
         }else{
             if (currentForm == 1){
@@ -106,21 +131,20 @@ public class CrimsonMoonsSemblanceWeaponItem extends Item {
                 stack.getOrCreateNbt().putInt("Form", 0);
             }else{
                 int cooldownLeft = stack.getOrCreateNbt().getInt("Cooldown") - (int) world.getTime() + stack.getOrCreateNbt().getInt("CooldownStart");
-                if (cooldownLeft > 800 ||  cooldownLeft < 1) {
+                if (cooldownLeft > stack.getOrCreateNbt().getInt("Cooldown") ||  cooldownLeft < 1) {
                     stack.getOrCreateNbt().putInt("Form", 1);
-                    WildfireRisingMod.LOGGER.info(String.valueOf(stack.getOrCreateNbt().getInt("Form")));
                     stack.getOrCreateNbt().putInt("ScytheFormStart", (int) world.getTime());
-                }else{
-                    WildfireRisingMod.LOGGER.info("Nope :(");
                 }
             }
         }
     }
 
     public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
-        int totalTime = (int) world.getTime() - stack.getOrCreateNbt().getInt("ScytheFormStart");
-        if (totalTime >= 640) {
-            this.onStoppedUsing(stack, world, (LivingEntity) entity, 1);
+        if (stack.getOrCreateNbt().getInt("Form") == 1) {
+            int totalTime = (int) world.getTime() - stack.getOrCreateNbt().getInt("ScytheFormStart");
+            if (totalTime >= 640) {
+                this.onStoppedUsing(stack, world, (LivingEntity) entity, 99);
+            }
         }
     }
 
