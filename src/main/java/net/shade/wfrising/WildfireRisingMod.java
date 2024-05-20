@@ -3,6 +3,7 @@ package net.shade.wfrising;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.minecraft.util.Identifier;
 import net.shade.wfrising.effects.ModEffects;
 import net.shade.wfrising.event.PlayerTickHandler;
 import net.shade.wfrising.item.ModItemGroups;
@@ -21,5 +22,9 @@ public class WildfireRisingMod implements ModInitializer {
 		ModEffects.registerModEffects();
 
 		ServerTickEvents.END_SERVER_TICK.register(new PlayerTickHandler());
+	}
+
+	public static Identifier createId(String path) {
+		return new Identifier(MOD_ID, path);
 	}
 }

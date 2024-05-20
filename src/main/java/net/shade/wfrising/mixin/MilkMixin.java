@@ -9,8 +9,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 @Mixin(MilkBucketItem.class)
 public abstract class MilkMixin {
     // todo: fix this
-    @Inject(method = "finishUsing", at = @At("HEAD"))
+    /*@Inject(method = "finishUsing", at = @At("HEAD"))
     private void injected {
 
-    }
+    }*/
 }
