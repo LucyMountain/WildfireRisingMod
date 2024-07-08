@@ -6,10 +6,12 @@ import net.minecraft.entity.damage.DamageScaling;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
 import net.minecraft.entity.effect.StatusEffects;
+import net.shade.wfrising.effects.WildfireRisingEffectFlags;
+import net.shade.wfrising.effects.WildfireRisingStatusEffect;
 
-public class BloodDebtEffect extends StatusEffect {
+public class BloodDebtEffect extends WildfireRisingStatusEffect {
     public BloodDebtEffect(StatusEffectCategory statusEffectCategory, int color) {
-        super(statusEffectCategory, color);
+        super(statusEffectCategory, color, true, WildfireRisingEffectFlags.BLOOD_DEBT, true);
     }
 
     @Override

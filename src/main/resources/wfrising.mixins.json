@@ -5,7 +5,9 @@
 	"mixins": [
 		"BondOfLifeMixin",
 		"HealthBarMixin",
-		"BloodDebtRendererMixin"
+		"BloodDebtRendererMixin",
+		"LivingEntityInvoker",
+		"WildfireRisingFlagsMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

@@ -1,27 +1,17 @@
 package net.shade.wfrising.effects;
 
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.item.ItemGroups;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import net.shade.wfrising.WildfireRisingMod;
 import net.shade.wfrising.effects.custom.BloodDebtEffect;
 import net.shade.wfrising.effects.custom.BondOfLifeEffect;
-import net.shade.wfrising.effects.custom.EtherealGlareEffect;
-import net.shade.wfrising.item.ModItems;
 
 public class ModEffects {
-
-    public static final StatusEffect ETHEREAL_GLARE = registerEffect("ethereal_glare",
-            new EtherealGlareEffect(StatusEffectCategory.HARMFUL, 11141290));
-
-    public static final StatusEffect CELESTIAL_RADIANCE = registerEffect("celestial_radiance",
-            new EtherealGlareEffect(StatusEffectCategory.HARMFUL, 16755200));
 
     public static final StatusEffect BOND_OF_LIFE = registerEffect("bond_of_life",
             new BondOfLifeEffect(StatusEffectCategory.HARMFUL, 11141120).addAttributeModifier(EntityAttributes.GENERIC_ATTACK_DAMAGE, "CB3F55D3-645C-4F38-A497-9C13A33DB5CF", 0.025, EntityAttributeModifier.Operation.MULTIPLY_TOTAL));

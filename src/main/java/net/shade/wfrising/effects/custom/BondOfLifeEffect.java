@@ -5,10 +5,12 @@ import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.shade.wfrising.effects.ModEffects;
+import net.shade.wfrising.effects.WildfireRisingEffectFlags;
+import net.shade.wfrising.effects.WildfireRisingStatusEffect;
 
-public class BondOfLifeEffect extends StatusEffect {
+public class BondOfLifeEffect extends WildfireRisingStatusEffect {
     public BondOfLifeEffect(StatusEffectCategory statusEffectCategory, int color) {
-        super(statusEffectCategory, color);
+        super(statusEffectCategory, color, true, WildfireRisingEffectFlags.BOND_OF_LIFE, false);
     }
 
     @Override

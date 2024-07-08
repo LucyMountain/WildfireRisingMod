@@ -35,16 +35,21 @@ import net.shade.wfrising.effects.ModEffects;
 import net.shade.wfrising.event.PlayerTickHandler;
 
 public class CrimsonMoonsSemblanceWeaponItem extends Item {
-    private final float attackDamage = 7;
+    private float spearAttackDamage = 10;
+    private double spearAttackSpeed = -2.2;
+    private float scytheAttackDamage = 15;
+    private double scytheAttackSpeed = -2.8;
     private int weaponForm = 0;
     private int maxUseTicks = 100;
-    private final Multimap<EntityAttribute, EntityAttributeModifier> attributeModifiers;
+    private int baseCooldown = 160;
+    private int maxUseTime = 840;
+    private Multimap<EntityAttribute, EntityAttributeModifier> attributeModifiers;
 
     public CrimsonMoonsSemblanceWeaponItem(Settings settings) {
         super(settings);
         ImmutableMultimap.Builder<EntityAttribute, EntityAttributeModifier> builder = ImmutableMultimap.builder();
-        builder.put(EntityAttributes.GENERIC_ATTACK_DAMAGE, new EntityAttributeModifier(ATTACK_DAMAGE_MODIFIER_ID, "Weapon modifier", (double)this.attackDamage, EntityAttributeModifier.Operation.ADDITION));
-        builder.put(EntityAttributes.GENERIC_ATTACK_SPEED, new EntityAttributeModifier(ATTACK_SPEED_MODIFIER_ID, "Weapon modifier", (double)-2.4, EntityAttributeModifier.Operation.ADDITION));
+        builder.put(EntityAttributes.GENERIC_ATTACK_DAMAGE, new EntityAttributeModifier(ATTACK_DAMAGE_MODIFIER_ID, "Weapon modifier", (this.weaponForm == 0)? (double)this.spearAttackDamage : (double)this.scytheAttackDamage, EntityAttributeModifier.Operation.ADDITION));
+        builder.put(EntityAttributes.GENERIC_ATTACK_SPEED, new EntityAttributeModifier(ATTACK_SPEED_MODIFIER_ID, "Weapon modifier", (this.weaponForm == 0)? this.spearAttackSpeed : this.scytheAttackSpeed, EntityAttributeModifier.Operation.ADDITION));
         this.attributeModifiers = builder.build();
     }
 
@@ -53,22 +58,21 @@ public class CrimsonMoonsSemblanceWeaponItem extends Item {
     }
 
     public float getMiningSpeedMultiplier(ItemStack stack, BlockState state) {
-        if (state.isOf(Blocks.COBWEB)) {
-            return 15.0F;
-        } else {
-            return state.isIn(BlockTags.SWORD_EFFICIENT) ? 1.5F : 1.0F;
-        }
+        return state.isIn(BlockTags.SWORD_EFFICIENT) ||
+                state.isOf(Blocks.COBWEB) ? 1.5F : 1.0F;
     }
 
     public boolean postHit(ItemStack stack, LivingEntity target, LivingEntity attacker) {
         stack.damage(1, attacker, (e) -> {
             e.sendEquipmentBreakStatus(EquipmentSlot.MAINHAND);
         });
-        if (target.hasStatusEffect(ModEffects.BLOOD_DEBT) && stack.getOrCreateNbt().getInt("Form") == 1){
-            target.damage(target.getDamageSources().magic(), 0.7F);
-        }
         target.addStatusEffect(new StatusEffectInstance(ModEffects.BLOOD_DEBT, 600, 0));
+        int cooldown = stack.getOrCreateNbt().getInt("Cooldown");
+        stack.getOrCreateNbt().putInt("Cooldown", cooldown - 16);
         if (stack.getOrCreateNbt().getInt("Form") == 1){
+            if (target.hasStatusEffect(ModEffects.BLOOD_DEBT)) {
+                target.damage(target.getDamageSources().magic(), 0.7F);
+            }
             if (attacker.hasStatusEffect(ModEffects.BOND_OF_LIFE)) {
                 int bond_amplifier = attacker.getActiveStatusEffects().get(ModEffects.BOND_OF_LIFE).getAmplifier();
                 if (bond_amplifier < 19) {
@@ -76,7 +80,7 @@ public class CrimsonMoonsSemblanceWeaponItem extends Item {
                     attacker.addStatusEffect(new StatusEffectInstance(ModEffects.BOND_OF_LIFE, -1, bond_amplifier + 1));
                 }
             }else{
-                attacker.addStatusEffect(new StatusEffectInstance(ModEffects.BOND_OF_LIFE, -1, 0));
+                attacker.addStatusEffect(new StatusEffectInstance(ModEffects.BOND_OF_LIFE, -1,0));
             }
         }
         return true;
@@ -120,19 +124,28 @@ public class CrimsonMoonsSemblanceWeaponItem extends Item {
         }else{
             if (currentForm == 1){
                 int totalTime = (int) world.getTime() - stack.getOrCreateNbt().getInt("ScytheFormStart");
-                int cooldown = 160;
-                if (totalTime < 640){
+                int cooldown = this.baseCooldown;
+                if (totalTime < this.maxUseTime){
                     cooldown = cooldown + totalTime;
                 }else{
-                    cooldown = cooldown + 640;
+                    cooldown = cooldown + this.maxUseTime;
                 }
                 stack.getOrCreateNbt().putInt("CooldownStart", (int) world.getTime());
                 stack.getOrCreateNbt().putInt("Cooldown", cooldown);
                 stack.getOrCreateNbt().putInt("Form", 0);
+                ImmutableMultimap.Builder<EntityAttribute, EntityAttributeModifier> builder = ImmutableMultimap.builder();
+                builder.put(EntityAttributes.GENERIC_ATTACK_DAMAGE, new EntityAttributeModifier(ATTACK_DAMAGE_MODIFIER_ID, "Weapon modifier", (double)this.spearAttackDamage, EntityAttributeModifier.Operation.ADDITION));
+                builder.put(EntityAttributes.GENERIC_ATTACK_SPEED, new EntityAttributeModifier(ATTACK_SPEED_MODIFIER_ID, "Weapon modifier", (double)this.spearAttackSpeed
+                        , EntityAttributeModifier.Operation.ADDITION));
+                this.attributeModifiers = builder.build();
             }else{
                 int cooldownLeft = stack.getOrCreateNbt().getInt("Cooldown") - (int) world.getTime() + stack.getOrCreateNbt().getInt("CooldownStart");
                 if (cooldownLeft > stack.getOrCreateNbt().getInt("Cooldown") ||  cooldownLeft < 1) {
                     stack.getOrCreateNbt().putInt("Form", 1);
+                    ImmutableMultimap.Builder<EntityAttribute, EntityAttributeModifier> builder = ImmutableMultimap.builder();
+                    builder.put(EntityAttributes.GENERIC_ATTACK_DAMAGE, new EntityAttributeModifier(ATTACK_DAMAGE_MODIFIER_ID, "Weapon modifier", (double)this.scytheAttackDamage, EntityAttributeModifier.Operation.ADDITION));
+                    builder.put(EntityAttributes.GENERIC_ATTACK_SPEED, new EntityAttributeModifier(ATTACK_SPEED_MODIFIER_ID, "Weapon modifier", (double)this.scytheAttackSpeed, EntityAttributeModifier.Operation.ADDITION));
+                    this.attributeModifiers = builder.build();
                     stack.getOrCreateNbt().putInt("ScytheFormStart", (int) world.getTime());
                 }
             }
@@ -142,7 +155,7 @@ public class CrimsonMoonsSemblanceWeaponItem extends Item {
     public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
         if (stack.getOrCreateNbt().getInt("Form") == 1) {
             int totalTime = (int) world.getTime() - stack.getOrCreateNbt().getInt("ScytheFormStart");
-            if (totalTime >= 640) {
+            if (totalTime >= this.maxUseTime) {
                 this.onStoppedUsing(stack, world, (LivingEntity) entity, 99);
             }
         }
