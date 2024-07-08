@@ -7,6 +7,7 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import net.shade.wfrising.WildfireRisingMod;
 import net.shade.wfrising.util.RenderUtils;
@@ -22,11 +23,12 @@ public interface BloodDebtRenderer {
         if (player == null) {return;}
         var direction = livingEntity.getCameraPosVec(tickDelta).subtract(player.getCameraPosVec(tickDelta));
         var rx = (float) -Math.atan2(direction.y, Math.sqrt(direction.x * direction.x + direction.z * direction.z));
-        var ry = (float) -Math.atan2(direction.x, direction.z);
+        var ry = (float) Math.atan2(direction.x, direction.z);
         matrices.push();
         matrices.translate(0.D, 1.0D, 0.0D);
         var dispatcher = MinecraftClient.getInstance().getEntityRenderDispatcher();
-        matrices.multiply(dispatcher.getRotation());
+        matrices.multiply(RotationAxis.POSITIVE_Y.rotation(ry));
+        matrices.multiply(RotationAxis.POSITIVE_X.rotation(rx));
         matrices.translate(0.0D, 0.0D, -0.75D);
         var consumer = vertices.getBuffer(RenderLayer.getEntityCutout(TEXTURE));
         RenderUtils.drawBillboard(consumer, matrices, 0xF000F0, 0.9F, 0.9F, 0xC8FFFFFF);
