@@ -8,15 +8,12 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import net.shade.wfrising.WildfireRisingMod;
-import net.shade.wfrising.item.custom.AetherfallWeaponItem;
 import net.shade.wfrising.item.custom.CrimsonMoonsSemblanceWeaponItem;
 
 public class ModItems {
 
     public static final Item CRIMSON_MOONS_SEMBLANCE = registerItem("crimson_moons_semblance",
             new CrimsonMoonsSemblanceWeaponItem(new FabricItemSettings().maxCount(1)));
-    public static final Item AETHERFALL = registerItem("aetherfall",
-            new AetherfallWeaponItem(new FabricItemSettings().maxCount(1)));
 
     private static void addItesToIngredientTabItemGroup(FabricItemGroupEntries entries) {
     }
