@@ -15,7 +15,6 @@ public class ModItemGroups {
             FabricItemGroup.builder().displayName(Text.translatable("itemgroup.wildfire_rising"))
                     .icon(() -> new ItemStack(ModItems.CRIMSON_MOONS_SEMBLANCE)).entries((displayContext, entries) -> {
                         entries.add(ModItems.CRIMSON_MOONS_SEMBLANCE);
-                        entries.add(ModItems.AETHERFALL);
                     }).build());
 
     public static void registerItemGroups() {
